@@ -3,20 +3,21 @@ package fr.polytech.invoice.business;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.ejb.EJB;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import fr.polytech.entities.*;
 import fr.polytech.invoice.components.DeliveryBilling;
 import fr.polytech.invoice.components.InvoiceManager;
-import fr.polytech.invoice.components.InvoiceBean.Invoice;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,18 +33,34 @@ public class InvoiceTest extends AbstractInvoiceTest {
     @EJB(name = "invoice")
     private InvoiceManager invoiceManager;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     private List<Delivery> deliveries;
 
     @Before
     public void init()
     {
-        deliveries = new ArrayList<>();
-        deliveries.add(new Delivery());
-        deliveries.add(new Delivery());
-        deliveries.add(new Delivery());
+        
+        Parcel p1 = new Parcel("AAAABBBBCA", "add1", "car1", "cust1");
+        entityManager.persist(p1);
+        Delivery d1 = new Delivery("AAAABBBBCD");
+        d1.setParcel(p1);
+        Parcel p2 = new Parcel("AAAABBBBCB", "add1", "car1", "cust1");
+        entityManager.persist(p2);
+        Delivery d2 = new Delivery("AAAABBBBCE");
+        d2.setParcel(p2);
+        Parcel p3 = new Parcel("AAAABBBBCC", "add1", "car1", "cust1");
+        entityManager.persist(p3);
+        Delivery d3 = new Delivery("AAAABBBBCF");
+        d3.setParcel(p3);
+        entityManager.persist(d1);
+        entityManager.persist(d2);
+        entityManager.persist(d3);
+        
+        deliveries = new ArrayList<>(Arrays.asList(d1, d2, d3));
     }
 
-    @Ignore
     @Test
     public void functionnal() {
         //Generating invoice

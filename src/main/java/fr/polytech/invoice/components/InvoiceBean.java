@@ -19,31 +19,14 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import fr.polytech.entities.Delivery;
+import fr.polytech.entities.Invoice;
+import fr.polytech.entities.InvoiceStatus;
 
 
 @Stateless
 @LocalBean
 @Named("invoice")
 public class InvoiceBean implements DeliveryBilling, InvoiceManager {
-
-    /**
-     * To remove just to not change entities for the starting
-     */
-    public class Invoice {
-        public void setDeliveries(List<Delivery> deliveries) {}
-        public void setStatus(InvoiceStatus status) {}
-		public List<Delivery> getDeliveries() {
-			return null;
-		}
-
-    }
-
-    public enum InvoiceStatus {
-        NOT_PAID;
-    }
-    /**
-     * END
-     */
 
     private static final Logger log = Logger.getLogger(Logger.class.getName());
 
@@ -54,6 +37,8 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
     public void generatingInvoice(List<Delivery> deliveries) {
         Invoice invoice = new Invoice();
         invoice.setDeliveries(deliveries);
+        //TODO generating id
+        invoice.setInvoiceId("IN1");
         invoice.setStatus(InvoiceStatus.NOT_PAID);
         entityManager.persist(invoice);
     }

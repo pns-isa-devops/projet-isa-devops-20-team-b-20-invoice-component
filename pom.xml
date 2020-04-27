@@ -11,7 +11,7 @@
     <version>2.0-SNAPSHOT</version>
 
     <properties>
-        <versions.projet-isa-devops-20-team-b-20-entities>1.3-SNAPSHOT</versions.projet-isa-devops-20-team-b-20-entities>
+        <versions.projet-isa-devops-20-team-b-20-entities>2.1-SNAPSHOT</versions.projet-isa-devops-20-team-b-20-entities>
     </properties>
 
     <dependencies>
