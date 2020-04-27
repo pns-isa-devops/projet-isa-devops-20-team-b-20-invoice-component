@@ -30,6 +30,9 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
 
     private static final Logger log = Logger.getLogger(Logger.class.getName());
 
+    public static final int PRICE_PER_DELIVERY = 10;
+    public static final int BASE_PRICE = 30;
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -37,8 +40,9 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
     public void generatingInvoice(List<Delivery> deliveries) {
         Invoice invoice = new Invoice();
         invoice.setDeliveries(deliveries);
-        //TODO generating id
+        //TODO generate id
         invoice.setInvoiceId("IN1");
+        invoice.setPrice(deliveries.size() * PRICE_PER_DELIVERY + BASE_PRICE);
         invoice.setStatus(InvoiceStatus.NOT_PAID);
         entityManager.persist(invoice);
     }

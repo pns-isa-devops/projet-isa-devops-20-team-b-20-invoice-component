@@ -12,6 +12,7 @@ import javax.persistence.PersistenceContext;
 
 import fr.polytech.entities.*;
 import fr.polytech.invoice.components.DeliveryBilling;
+import fr.polytech.invoice.components.InvoiceBean;
 import fr.polytech.invoice.components.InvoiceManager;
 
 import org.jboss.arquillian.junit.Arquillian;
@@ -76,6 +77,8 @@ public class InvoiceTest extends AbstractInvoiceTest {
         for(int i=0; i<deliveries.size(); i++) {
             assertEquals(deliveries.get(i), deliveriesGot.get(i));
         }
+
+        assertEquals(this.deliveries.size() * InvoiceBean.PRICE_PER_DELIVERY + InvoiceBean.BASE_PRICE, (int)invoices.get(0).getPriceHT());
     }
 
 }
