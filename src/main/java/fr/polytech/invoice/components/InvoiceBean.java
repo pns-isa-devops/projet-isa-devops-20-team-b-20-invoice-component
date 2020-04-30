@@ -44,12 +44,18 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
         invoice.setInvoiceId("IN1");
         invoice.setPrice(deliveries.size() * PRICE_PER_DELIVERY + BASE_PRICE);
         invoice.setStatus(InvoiceStatus.NOT_PAID);
+        printStackTrace(invoice, "Invoice 1");
         entityManager.persist(invoice);
+        invoice = entityManager.merge(invoice);
+        printStackTrace(invoice, "Invoice 2");
+        printStackTrace(find().get().get(0), "Invoice 3");
     }
 
     @Override
     public List<Invoice> getInvoices() {
-        return find().get();
+        List<Invoice> invoices = find().get();
+        printStackTrace(find().get().get(0), "Invoice 4");
+        return invoices;
     }
 
     private Optional<List<Invoice>> find() {
@@ -67,5 +73,22 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
         }
     }
 
-
+    private void printStackTrace(Object o, String str)
+    {
+        System.out.printf("******* StackTrace : %s ******\n", str);
+        for(int i=0; i<15; i++)
+        {
+            for(int j=0; j<i; j++)
+                System.out.printf("*");
+            System.out.printf("\n");
+        }
+        System.out.println(o.toString());
+        for(int i=15; i>0; i--)
+        {
+            for(int j=0; j<i; j++)
+                System.out.printf("*");
+            System.out.printf("\n");
+        }
+        System.out.println("********** End **********");
+    }
 }

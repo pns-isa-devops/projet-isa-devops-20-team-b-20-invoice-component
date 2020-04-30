@@ -72,13 +72,13 @@ public class InvoiceTest extends AbstractInvoiceTest {
         assertEquals(1, invoices.size());
         List<Delivery> deliveriesGot = invoices.get(0).getDeliveries();
         //Check if the number of deliveries of the invoice is correct
-        assertEquals(deliveries.size(), deliveries.size());
+        assertEquals(deliveries.size(), deliveriesGot.size());
         //Check if deliveries is equals with deliveries added 
         for(int i=0; i<deliveries.size(); i++) {
             assertEquals(deliveries.get(i), deliveriesGot.get(i));
         }
 
-        assertEquals(this.deliveries.size() * InvoiceBean.PRICE_PER_DELIVERY + InvoiceBean.BASE_PRICE, (int)invoices.get(0).getPriceHT());
+        assertEquals(this.deliveries.size() * InvoiceBean.PRICE_PER_DELIVERY + InvoiceBean.BASE_PRICE, (int)invoices.get(0).getPrice());
     }
 
 }
