@@ -1,5 +1,6 @@
 package fr.polytech.invoice.components;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.LocalBean;
@@ -22,7 +23,6 @@ import fr.polytech.entities.Delivery;
 import fr.polytech.entities.Invoice;
 import fr.polytech.entities.InvoiceStatus;
 
-
 @Stateless
 @LocalBean
 @Named("invoice")
@@ -38,9 +38,13 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
 
     @Override
     public void generatingInvoice(List<Delivery> deliveries) {
+        List<Delivery> merged = new ArrayList<>();
+        for (Delivery delivery : deliveries) {
+            merged.add(entityManager.merge(delivery));
+        }
         Invoice invoice = new Invoice();
-        invoice.setDeliveries(deliveries);
-        //TODO generate id
+        invoice.setDeliveries(merged);
+        // TODO generate id
         invoice.setInvoiceId("IN1");
         invoice.setPrice(deliveries.size() * PRICE_PER_DELIVERY + BASE_PRICE);
         invoice.setStatus(InvoiceStatus.NOT_PAID);
@@ -73,19 +77,16 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
         }
     }
 
-    private void printStackTrace(Object o, String str)
-    {
+    private void printStackTrace(Object o, String str) {
         System.out.printf("******* StackTrace : %s ******\n", str);
-        for(int i=0; i<15; i++)
-        {
-            for(int j=0; j<i; j++)
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < i; j++)
                 System.out.printf("*");
             System.out.printf("\n");
         }
         System.out.println(o.toString());
-        for(int i=15; i>0; i--)
-        {
-            for(int j=0; j<i; j++)
+        for (int i = 15; i > 0; i--) {
+            for (int j = 0; j < i; j++)
                 System.out.printf("*");
             System.out.printf("\n");
         }
