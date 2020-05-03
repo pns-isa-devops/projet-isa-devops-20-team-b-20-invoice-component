@@ -1,5 +1,6 @@
 package fr.polytech.invoice.components;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.LocalBean;
@@ -19,48 +20,46 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import fr.polytech.entities.Delivery;
-
+import fr.polytech.entities.Invoice;
+import fr.polytech.entities.InvoiceStatus;
 
 @Stateless
 @LocalBean
 @Named("invoice")
 public class InvoiceBean implements DeliveryBilling, InvoiceManager {
 
-    /**
-     * To remove just to not change entities for the starting
-     */
-    public class Invoice {
-        public void setDeliveries(List<Delivery> deliveries) {}
-        public void setStatus(InvoiceStatus status) {}
-		public List<Delivery> getDeliveries() {
-			return null;
-		}
-
-    }
-
-    public enum InvoiceStatus {
-        NOT_PAID;
-    }
-    /**
-     * END
-     */
-
     private static final Logger log = Logger.getLogger(Logger.class.getName());
+
+    public static final int PRICE_PER_DELIVERY = 10;
+    public static final int BASE_PRICE = 30;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
     public void generatingInvoice(List<Delivery> deliveries) {
+        List<Delivery> merged = new ArrayList<>();
+        for (Delivery delivery : deliveries) {
+            merged.add(entityManager.merge(delivery));
+        }
         Invoice invoice = new Invoice();
-        invoice.setDeliveries(deliveries);
+        invoice.setDeliveries(merged);
+        // TODO generate id
+        invoice.setInvoiceId("IN1");
+        invoice.setPrice(deliveries.size() * PRICE_PER_DELIVERY + BASE_PRICE);
         invoice.setStatus(InvoiceStatus.NOT_PAID);
+        printStackTrace(invoice, "Invoice 1");
         entityManager.persist(invoice);
+        invoice = entityManager.merge(invoice);
+        printStackTrace(invoice, "Invoice 2");
+        printStackTrace(find().get().get(0), "Invoice 3");
     }
 
     @Override
     public List<Invoice> getInvoices() {
-        return find().get();
+        List<Invoice> invoices = find().get();
+        printStackTrace(find().get().get(0), "Invoice 4");
+        return invoices;
     }
 
     private Optional<List<Invoice>> find() {
@@ -78,5 +77,19 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
         }
     }
 
-
+    private void printStackTrace(Object o, String str) {
+        System.out.printf("******* StackTrace : %s ******\n", str);
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < i; j++)
+                System.out.printf("*");
+            System.out.printf("\n");
+        }
+        System.out.println(o.toString());
+        for (int i = 15; i > 0; i--) {
+            for (int j = 0; j < i; j++)
+                System.out.printf("*");
+            System.out.printf("\n");
+        }
+        System.out.println("********** End **********");
+    }
 }
