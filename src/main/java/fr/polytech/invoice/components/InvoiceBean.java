@@ -26,7 +26,6 @@ import fr.polytech.entities.InvoiceStatus;
 import fr.polytech.invoice.exceptions.InvoiceNotFoundException;
 
 @Stateless
-@LocalBean
 @Named("invoice")
 public class InvoiceBean implements DeliveryBilling, InvoiceManager {
 
@@ -50,7 +49,6 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
         invoice.setPrice(deliveries.size() * PRICE_PER_DELIVERY + BASE_PRICE);
         invoice.setStatus(InvoiceStatus.NOT_PAID);
         entityManager.persist(invoice);
-        invoice = entityManager.merge(invoice);
     }
 
     @Override
@@ -74,7 +72,7 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
             return found;
         } catch (NoResultException e) {
             log.log(Level.FINEST, "No result for [" + invoiceID + "]", e);
-            throw new  InvoiceNotFoundException(invoiceID);
+            throw new InvoiceNotFoundException(invoiceID);
         }
     }
 
@@ -95,25 +93,26 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
 
     /**
      * generate an ID of 15 characters : numbers followed by uppercase letters
+     *
      * @param deliveries object
      * @return
      */
-    private String generateID(List<Delivery> deliveries){
+    private String generateID(List<Delivery> deliveries) {
         int hashList = deliveries.hashCode();
         hashList *= hashList < 0 ? -1 : 1;
         StringBuilder generated = new StringBuilder();
         String hash = Integer.toString(hashList);
-        int toComplete = hash.length() > 15 ? 0 : 15 - hash.length() ;
+        int toComplete = hash.length() > 15 ? 0 : 15 - hash.length();
 
-        for (int i=0; i < 15; i++){
-            if(i + toComplete < 15 ){
-                if(i<10){
+        for (int i = 0; i < 15; i++) {
+            if (i + toComplete < 15) {
+                if (i < 10) {
                     generated.append(hash.charAt(i));
-                }else{
+                } else {
                     generated.append((hash.charAt(i) - '0') % 26 + 'A');
                 }
-            }else {
-                generated.append((char) (new Random().nextInt(26) + 'A')); //random uppercase char
+            } else {
+                generated.append((char) (new Random().nextInt(26) + 'A')); // random uppercase char
             }
         }
 
