@@ -8,6 +8,7 @@ import javax.ejb.Stateless;
 import javax.inject.Named;
 
 import java.util.Optional;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +23,7 @@ import javax.persistence.criteria.Root;
 import fr.polytech.entities.Delivery;
 import fr.polytech.entities.Invoice;
 import fr.polytech.entities.InvoiceStatus;
+import fr.polytech.invoice.exceptions.InvoiceNotFoundException;
 
 @Stateless
 @LocalBean
@@ -44,7 +46,6 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
         }
         Invoice invoice = new Invoice();
         invoice.setDeliveries(merged);
-        // TODO generate id
         invoice.setInvoiceId(generateID(merged));
         invoice.setPrice(deliveries.size() * PRICE_PER_DELIVERY + BASE_PRICE);
         invoice.setStatus(InvoiceStatus.NOT_PAID);
@@ -60,6 +61,25 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
         List<Invoice> invoices = find().get();
         printStackTrace(find().get().get(0), "Invoice 4");
         return invoices;
+    }
+
+    @Override
+    public Invoice confirmInvoicePayment(String invoiceID) throws InvoiceNotFoundException {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Invoice> criteria = builder.createQuery(Invoice.class);
+        Root<Invoice> root = criteria.from(Invoice.class);
+        criteria.select(root).where(builder.equal(root.get("invoiceId"), invoiceID));
+        Invoice found;
+
+        TypedQuery<Invoice> query = entityManager.createQuery(criteria);
+        try {
+            found = query.getSingleResult();
+            found.setStatus(InvoiceStatus.PAID);
+            return found;
+        } catch (NoResultException e) {
+            log.log(Level.FINEST, "No result for [" + invoiceID + "]", e);
+            throw new  InvoiceNotFoundException(invoiceID);
+        }
     }
 
     private Optional<List<Invoice>> find() {
@@ -101,7 +121,7 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
     private String generateID(List<Delivery> deliveries){
         int hashList = deliveries.hashCode();
         hashList *= hashList < 0 ? -1 : 1;
-        StringBuilder generated = new StringBuilder("");
+        StringBuilder generated = new StringBuilder();
         String hash = Integer.toString(hashList);
         int toComplete = hash.length() > 15 ? 0 : 15 - hash.length() ;
 
@@ -110,10 +130,10 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
                 if(i<10){
                     generated.append(hash.charAt(i));
                 }else{
-                    generated.append((hash.charAt(i) - '0') % 26 + 65);
+                    generated.append((hash.charAt(i) - '0') % 26 + 'A');
                 }
             }else {
-                generated.append((char) ((int) (Math.random() * 100) % 26 + 65)); //random uppercase char
+                generated.append((char) (new Random().nextInt(26) + 'A')); //random uppercase char
             }
         }
 

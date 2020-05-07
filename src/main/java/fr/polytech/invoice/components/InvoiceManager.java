@@ -4,9 +4,12 @@ import java.util.List;
 import javax.ejb.Local;
 
 import fr.polytech.entities.Invoice;
+import fr.polytech.invoice.exceptions.InvoiceNotFoundException;
 
 @Local
 public interface InvoiceManager {
 
-    public List<Invoice> getInvoices();
+    List<Invoice> getInvoices();
+
+    Invoice confirmInvoicePayment(String invoiceID) throws InvoiceNotFoundException;
 }

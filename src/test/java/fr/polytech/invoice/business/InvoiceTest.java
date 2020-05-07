@@ -1,6 +1,7 @@
 package fr.polytech.invoice.business;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -13,9 +14,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.UserTransaction;
 
+import fr.polytech.entities.InvoiceStatus;
+import fr.polytech.invoice.exceptions.InvoiceNotFoundException;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.jruby.RubyProcess;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,6 +83,7 @@ public class InvoiceTest extends AbstractInvoiceTest {
         utx.begin();
         List<Invoice> invoices = invoiceManager.getInvoices();
         utx.commit();
+
         // Check if the new invoice inserted
         assertEquals(1, invoices.size());
         List<Delivery> deliveriesGot = invoices.get(0).getDeliveries();
@@ -91,6 +96,28 @@ public class InvoiceTest extends AbstractInvoiceTest {
 
         assertEquals(this.deliveries.size() * InvoiceBean.PRICE_PER_DELIVERY + InvoiceBean.BASE_PRICE,
                 (int) invoices.get(0).getPrice());
+
+
+        //confirm paiment of first invoice
+        assertEquals(InvoiceStatus.NOT_PAID, invoices.get(0).getStatus());
+        utx.begin();
+        Invoice invoice = invoiceManager.confirmInvoicePayment(invoices.get(0).getInvoiceId());
+        utx.commit();
+
+        // retrieve database invoices
+        utx.begin();
+        List<Invoice> invoiceAgain = invoiceManager.getInvoices();
+        utx.commit();
+
+        assertEquals(1, invoiceAgain.size()); //there is still only one invoice
+        assertEquals(invoiceAgain.get(0).getId(), invoice.getId()); //invoice ID did not change
+        assertEquals(InvoiceStatus.PAID, invoiceAgain.get(0).getStatus()); //invoice status is PAID now
+
+        //check exception
+        assertThrows(InvoiceNotFoundException.class, () -> {
+            invoiceManager.confirmInvoicePayment("ABCDE0123456789");
+        });
+
     }
 
 }
