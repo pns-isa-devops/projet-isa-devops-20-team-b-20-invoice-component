@@ -82,13 +82,13 @@ public class InvoiceTest extends AbstractInvoiceTest {
         // Get invoices from database
         utx.begin();
         List<Invoice> invoices = invoiceManager.getInvoices();
-        utx.commit();
 
         // Check if the new invoice inserted
         assertEquals(1, invoices.size());
         List<Delivery> deliveriesGot = invoices.get(0).getDeliveries();
         // Check if the number of deliveries of the invoice is correct
         assertEquals(deliveries.size(), deliveriesGot.size());
+        utx.commit();
         // Check if deliveries is equals with deliveries added
         for (int i = 0; i < deliveries.size(); i++) {
             assertEquals(deliveries.get(i), deliveriesGot.get(i));
@@ -97,8 +97,7 @@ public class InvoiceTest extends AbstractInvoiceTest {
         assertEquals(this.deliveries.size() * InvoiceBean.PRICE_PER_DELIVERY + InvoiceBean.BASE_PRICE,
                 (int) invoices.get(0).getPrice());
 
-
-        //confirm paiment of first invoice
+        // confirm paiment of first invoice
         assertEquals(InvoiceStatus.NOT_PAID, invoices.get(0).getStatus());
         utx.begin();
         Invoice invoice = invoiceManager.confirmInvoicePayment(invoices.get(0).getInvoiceId());
@@ -109,11 +108,11 @@ public class InvoiceTest extends AbstractInvoiceTest {
         List<Invoice> invoiceAgain = invoiceManager.getInvoices();
         utx.commit();
 
-        assertEquals(1, invoiceAgain.size()); //there is still only one invoice
-        assertEquals(invoiceAgain.get(0).getId(), invoice.getId()); //invoice ID did not change
-        assertEquals(InvoiceStatus.PAID, invoiceAgain.get(0).getStatus()); //invoice status is PAID now
+        assertEquals(1, invoiceAgain.size()); // there is still only one invoice
+        assertEquals(invoiceAgain.get(0).getId(), invoice.getId()); // invoice ID did not change
+        assertEquals(InvoiceStatus.PAID, invoiceAgain.get(0).getStatus()); // invoice status is PAID now
 
-        //check exception
+        // check exception
         assertThrows(InvoiceNotFoundException.class, () -> {
             invoiceManager.confirmInvoicePayment("ABCDE0123456789");
         });
