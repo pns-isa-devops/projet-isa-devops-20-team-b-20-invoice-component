@@ -45,7 +45,7 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
         Invoice invoice = new Invoice();
         invoice.setDeliveries(merged);
         // TODO generate id
-        invoice.setInvoiceId("IN1");
+        invoice.setInvoiceId(generateID(merged));
         invoice.setPrice(deliveries.size() * PRICE_PER_DELIVERY + BASE_PRICE);
         invoice.setStatus(InvoiceStatus.NOT_PAID);
         printStackTrace(invoice, "Invoice 1");
@@ -91,5 +91,32 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
             System.out.printf("\n");
         }
         System.out.println("********** End **********");
+    }
+
+    /**
+     * generate an ID of 15 characters : numbers followed by uppercase letters
+     * @param deliveries object
+     * @return
+     */
+    private String generateID(List<Delivery> deliveries){
+        int hashList = deliveries.hashCode();
+        hashList *= hashList < 0 ? -1 : 1;
+        StringBuilder generated = new StringBuilder("");
+        String hash = Integer.toString(hashList);
+        int toComplete = hash.length() > 15 ? 0 : 15 - hash.length() ;
+
+        for (int i=0; i < 15; i++){
+            if(i + toComplete < 15 ){
+                if(i<10){
+                    generated.append(hash.charAt(i));
+                }else{
+                    generated.append((hash.charAt(i) - '0') % 26 + 65);
+                }
+            }else {
+                generated.append((char) ((int) (Math.random() * 100) % 26 + 65)); //random uppercase char
+            }
+        }
+
+        return generated.toString();
     }
 }
