@@ -2,16 +2,13 @@ package fr.polytech.invoice.components;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Named;
-
 import java.util.Optional;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ejb.Stateless;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -39,22 +36,22 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
 
     @Override
     public void generatingInvoice(List<Delivery> deliveries) {
-        List<Delivery> merged = new ArrayList<>();
+        List<Delivery> merged = new ArrayList<>(deliveries.size());
         for (Delivery delivery : deliveries) {
             merged.add(entityManager.merge(delivery));
         }
         Invoice invoice = new Invoice();
         invoice.setDeliveries(merged);
         invoice.setInvoiceId(generateID(merged));
-        invoice.setPrice(deliveries.size() * PRICE_PER_DELIVERY + BASE_PRICE);
+        invoice.setPrice(deliveries.size() * (float) PRICE_PER_DELIVERY + BASE_PRICE);
         invoice.setStatus(InvoiceStatus.NOT_PAID);
         entityManager.persist(invoice);
     }
 
     @Override
     public List<Invoice> getInvoices() {
-        List<Invoice> invoices = find().get();
-        return invoices;
+        Optional<List<Invoice>> invoices = find();
+        return invoices.isPresent() ? invoices.get() : new ArrayList<>();
     }
 
     @Override
@@ -104,6 +101,8 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
         String hash = Integer.toString(hashList);
         int toComplete = hash.length() > 15 ? 0 : 15 - hash.length();
 
+        Random rnd = new Random();
+
         for (int i = 0; i < 15; i++) {
             if (i + toComplete < 15) {
                 if (i < 10) {
@@ -112,7 +111,7 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
                     generated.append((hash.charAt(i) - '0') % 26 + 'A');
                 }
             } else {
-                generated.append((char) (new Random().nextInt(26) + 'A')); // random uppercase char
+                generated.append((char) (rnd.nextInt(26) + 'A')); // random uppercase char
             }
         }
 

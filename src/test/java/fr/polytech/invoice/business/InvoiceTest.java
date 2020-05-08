@@ -2,7 +2,6 @@ package fr.polytech.invoice.business;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,12 +13,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.UserTransaction;
 
-import fr.polytech.entities.InvoiceStatus;
-import fr.polytech.invoice.exceptions.InvoiceNotFoundException;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jruby.RubyProcess;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,10 +23,12 @@ import org.junit.runner.RunWith;
 import arquillian.AbstractInvoiceTest;
 import fr.polytech.entities.Delivery;
 import fr.polytech.entities.Invoice;
+import fr.polytech.entities.InvoiceStatus;
 import fr.polytech.entities.Parcel;
 import fr.polytech.invoice.components.DeliveryBilling;
 import fr.polytech.invoice.components.InvoiceBean;
 import fr.polytech.invoice.components.InvoiceManager;
+import fr.polytech.invoice.exceptions.InvoiceNotFoundException;
 
 @RunWith(Arquillian.class)
 @Transactional(TransactionMode.DISABLED)
