@@ -1,6 +1,7 @@
 package fr.polytech.invoice.components;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -66,6 +67,7 @@ public class InvoiceBean implements DeliveryBilling, InvoiceManager {
         try {
             found = query.getSingleResult();
             found.setStatus(InvoiceStatus.PAID);
+            found.setEmissionDate(new GregorianCalendar());
             return found;
         } catch (NoResultException e) {
             log.log(Level.FINEST, "No result for [" + invoiceID + "]", e);
